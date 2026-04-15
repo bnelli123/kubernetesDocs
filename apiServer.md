@@ -1,164 +1,132 @@
-# 🔐 Kubernetes API Server – Security Overview
+Kubernetes (K8s) security is a broad topic, but it’s easiest to understand if you break it down into layers. Think of it as defending a system from the outside in: cluster → nodes → workloads → network → data → access control.
 
-## 📌 What is the API Server?
+Here’s a clear, structured overview of the core Kubernetes security concepts:
 
-The **Kubernetes API Server** is the **front-end of the control plane**.
+🔐 1. Cluster Security (Control Plane)
 
-It is responsible for:
+The control plane manages the entire cluster, so securing it is critical.
 
-- Exposing the Kubernetes API (used by `kubectl`, controllers, and applications)
-- Processing all cluster requests, such as:
-  - Creating Pods
-  - Reading Secrets
-  - Deleting Deployments
+Key concepts:
+API Server Security
+Entry point to the cluster
+Secured using TLS certificates
+Authentication
+Verifies who you are
+Methods: certificates, tokens, OIDC (e.g., Google login)
+Authorization
+Determines what you can do
+Controlled by RBAC (Role-Based Access Control)
+Admission Controllers
+Enforce policies before objects are created
+Example: block privileged containers
+👤 2. Authentication & Authorization
+Authentication (Who are you?)
+X.509 certificates
+Bearer tokens
+OpenID Connect (OIDC)
+Authorization (What can you do?)
+RBAC (most important)
+Roles & ClusterRoles
+RoleBindings & ClusterRoleBindings
+Principle of Least Privilege
+Only give minimum required permissions
+📦 3. Workload Security (Pods & Containers)
+Pod Security
+Avoid running as root
+Use read-only file systems
+Drop unnecessary Linux capabilities
+Pod Security Standards (PSS)
+Privileged (least secure)
+Baseline
+Restricted (most secure)
+SecurityContext
 
----
+Defines security settings:
 
-## 🔑 Why the API Server is Critical for Security
+securityContext:
+  runAsUser: 1000
+  readOnlyRootFilesystem: true
+🌐 4. Network Security
+Network Policies
 
-Every request in Kubernetes must pass through multiple **security layers** enforced by the API Server.
+Control traffic between pods.
 
----
+Default: all traffic allowed
+With policies: restrict communication
 
-## 🛂 1. Authorization (What can you do?)
+Example:
 
-After identity is verified, the API Server checks **permissions**.
+Allow only frontend → backend
+Block all other traffic
+Concepts:
+Pod-to-pod communication
+Namespace isolation
+Ingress/Egress rules
+🔑 5. Secrets Management
+Kubernetes Secrets
 
-### 🔹 Common Authorization Modes
+Used to store:
 
-- **RBAC** (most widely used)
-- **ABAC** (legacy)
-- **Node Authorization**
+Passwords
+API keys
+Tokens
 
-### 🔹 Example
+⚠️ Important:
 
-- User tries to list pods  
-- API Server checks:
-  - Role / ClusterRole  
-  - RoleBinding / ClusterRoleBinding  
+Stored in etcd (base64 encoded, not encrypted by default)
+Best Practices:
+Enable encryption at rest
+Use external tools:
+HashiCorp Vault
+AWS Secrets Manager
+Avoid hardcoding secrets in YAML
+🖥️ 6. Node Security
+Key areas:
+Secure kubelet
+Disable anonymous access
+Use minimal OS (e.g., container-optimized OS)
+Regular patching
+Container Runtime Security
+Use trusted images
+Scan images for vulnerabilities
+📊 7. Logging & Monitoring
+Why important?
 
----
+Detect attacks and misconfigurations.
 
-## 🧪 2. Admission Control (Should this request be allowed?)
+Tools:
+Audit logs (API server)
+Prometheus + Grafana
+Falco (runtime threat detection)
+🔒 8. Image Security
+Best practices:
+Use trusted registries
+Scan images (Trivy, Clair)
+Avoid latest tag
+Keep images minimal (Alpine, Distroless)
+🧱 9. etcd Security
+etcd stores cluster state (very sensitive)
+Secure with:
+TLS encryption
+Access restrictions
+Backup & restore strategy
+🚫 10. Common Security Risks
+Overly permissive RBAC roles
+Running containers as root
+No network policies
+Exposed dashboard/API
+Unencrypted secrets
+Using outdated images
+🧠 Quick Mental Model
 
-Even if a request is authorized, it is still **validated or modified** before execution.
+Think of Kubernetes security as:
 
-### 🔹 Types
-
-- **Validating Admission Controllers**
-- **Mutating Admission Controllers**
-
-### 🔹 Example Use Cases
-
-- Block privileged containers  
-- Enforce required labels  
-- Inject sidecars automatically  
-
----
-
-## 🔒 3. Secure Communication (TLS)
-
-All communication with the API Server is **encrypted**.
-
-### 🔹 Key Points
-
-- Uses **HTTPS (TLS)**  
-- Certificates ensure:
-  - Confidentiality  
-  - Integrity  
-
----
-
-## 🧾 4. Audit Logging
-
-The API Server logs all activity for visibility and compliance.
-
-### 🔹 Logs Include
-
-- Who made the request  
-- What action was performed  
-- When it happened  
-
----
-
-## 🔐 5. Secrets Access Control
-
-The API Server controls access to sensitive data:
-
-- Secrets  
-- ConfigMaps  
-
-### 🔹 Access is enforced via
-
-- RBAC  
-- Admission policies  
-
----
-
-## 🤖 6. ServiceAccount Integration
-
-- Pods authenticate using **ServiceAccount tokens**  
-- API Server validates these tokens  
-
----
-
-## 🌐 7. Network Exposure
-
-The API Server can be exposed in different ways:
-
-- **Public endpoint** → Less secure  
-- **Private endpoint** → Recommended  
-
-### 🔹 Best Practices
-
-- Restrict access via IP / VPC  
-- Use private clusters (EKS)  
-
----
-
-## 🧠 Request Flow (Security Pipeline)
-
-- User/Pod Request  
-  ↓  
-- Authentication (Who?)  
-  ↓  
-- Authorization (Allowed?)  
-  ↓  
-- Admission Control (Safe?)  
-  ↓  
-- etcd (Data stored/retrieved)  
-
----
-
-## ⚠️ Common Security Risks
-
-- Over-permissive RBAC  
-- Public API Server exposure  
-- No audit logging  
-- Misuse of default ServiceAccount  
-- Weak authentication (no OIDC/IAM)  
-
----
-
-## ✅ Best Practices
-
-- Use **RBAC with least privilege**  
-- Enable **audit logging**  
-- Restrict API access (private endpoint)  
-- Use **OIDC / IAM (EKS)**  
-- Disable anonymous access  
-- Rotate certificates regularly  
-
----
-
-## 🔗 Key Takeaway
-
-> The API Server is the **single entry point** for all Kubernetes operations.
-
-It enforces:
-
-- Identity (**Authentication**)  
-- Access (**Authorization**)  
-- Policy (**Admission Control**)  
-
-👉 Securing the API Server = securing the entire cluster
+Identity → Access → Workloads → Network → Data → Monitoring
+✅ Key Best Practices Summary
+Use RBAC with least privilege
+Enable network policies
+Secure secrets properly
+Use Pod Security Standards (restricted)
+Scan container images
+Enable audit logging
+Encrypt data at rest (etcd)
