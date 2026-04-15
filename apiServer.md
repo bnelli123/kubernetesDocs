@@ -1,230 +1,109 @@
-# 🔐 Kubernetes API Server – Security BasicsThe **Kubernetes API Server** is the **central control point** of the cluster.  All communication — whether from users, pods, or controllers — goes through it.> 👉 If you secure the API Server, you secure your cluster.---## 🧠 What the API Server Does (Security Perspective)The API Server handles:1. **Authentication** → Who is making the request?2. **Authorization** → Are they allowed to do it?3. **Admission Control** → Should this request be allowed/modified?4. **Audit Logging** → What happened?---## 🔑 1. Authentication (Who are you?)The API Server verifies the identity of the caller.### Supported Methods- Client Certificates- Bearer Tokens (ServiceAccounts)- OIDC (SSO providers like Okta, Google)- Webhook Token Authentication- IAM (in EKS)### Example Flow```textkubectl → kubeconfig → API Server → Authenticated user
-Key Point
+# What is the API Server?
 
-❗ If authentication fails → request is rejected immediately
+The API Server is the **front-end of the Kubernetes control plane**.
 
+It:
+- Exposes the Kubernetes API (used by `kubectl`, controllers, apps)
+- Processes all requests such as:
+  - Create Pod
+  - Read Secrets
+  - Delete Deployments
 
-🛂 2. Authorization (What can you do?)
-After authentication, the API Server checks permissions.
-Common Authorizers
+---
 
+## 🔑 Why it’s critical for security
 
-RBAC (most widely used)
+Every request must pass through these stages:
 
+🔐 2. Authorization (What can you do?)
 
+After identity is verified, API Server checks permissions.
+
+Common authorization modes:
+RBAC (most used)
 ABAC (legacy)
+Node authorization
+Example:
 
+User tries to list pods
+API Server checks:
 
-Node Authorizer
+Role / ClusterRole
+RoleBinding
+🔐 3. Admission Control (Should this request be allowed?)
 
+Even if authorized, the request is validated and possibly modified.
 
-Webhook
-
-
-Example
-User: dev-userAction: list podsNamespace: dev→ Allowed only if RBAC permits
-Key Point
-
-❗ No permission = request denied (even if authenticated)
-
-
-🧪 3. Admission Controllers (Policy Enforcement)
-Admission controllers run after authorization but before object creation.
-What They Do
-
-
-Validate requests
-
-
-Mutate requests
-
-
-Enforce policies
-
-
-Examples
-
-
-Pod Security Admission
-
-
-OPA Gatekeeper
-
-
-Kyverno
-
-
-Example Use Cases
-
-
+Types:
+Validating Admission Controllers
+Mutating Admission Controllers
+Examples:
 Block privileged containers
+Enforce labels
+Inject sidecars
+🔐 4. Secure Communication (TLS)
 
+All communication is encrypted.
 
-Enforce resource limits
+API Server uses HTTPS (TLS)
+Certificates ensure:
+Confidentiality
+Integrity
+🔐 5. Audit Logging
 
+Tracks all API activity.
 
-Require labels
-
-
-
-🧾 4. Audit Logging (Who did what?)
-The API Server records all requests.
-What Gets Logged
-
-
+Logs include:
 Who made the request
-
-
 What action was performed
+When it happened
+🔐 6. Secrets Access Control
 
+API Server controls access to:
 
-Resource affected
+Secrets
+ConfigMaps
 
+👉 Access is enforced via:
 
-Timestamp
+RBAC
+Admission policies
+🔐 7. ServiceAccount Integration
+Pods authenticate using ServiceAccount tokens
+API Server validates these tokens
+🔐 8. Network Exposure
 
+API Server is exposed via:
 
-Why It Matters
-
-
-Security investigations
-
-
-Compliance
-
-
-Debugging
-
-
-
-🔒 5. Transport Security (TLS)
-All communication with the API Server is encrypted.
-Key Components
-
-
-HTTPS (TLS) only
-
-
-Certificates for:
-
-
-API Server
-
-
-Clients
-
-
-etcd
-
-
-
-
-Key Point
-
-❗ Never expose API Server over insecure HTTP
-
-
-🧱 6. API Server ↔ etcd Security
-The API Server stores all cluster data in etcd.
-Security Measures
-
-
-TLS encryption between API Server and etcd
-
-
-etcd access restricted (no public exposure)
-
-
-Encryption at rest (recommended)
-
-
-
-🚫 7. Common Security Risks
-⚠️ Over-permissive RBAC
-
-
-cluster-admin given unnecessarily
-
-
-⚠️ Anonymous Access Enabled
---anonymous-auth=true
-⚠️ Exposed API Server
-
-
-Public endpoint without proper controls
-
-
-⚠️ No Audit Logs
-
-
-No visibility into actions
-
-
-⚠️ Weak Authentication
-
-
-Static tokens, no rotation
-
-
-
-✅ 8. Best Practices
-
-
-Disable anonymous access
-
-
+Public endpoint (less secure)
+Private endpoint (recommended)
+Best practices:
+Restrict access via IP / VPC
+Use private clusters (EKS)
+🧠 Request Flow (Full Security Pipeline)
+User/Pod Request
+        ↓
+Authentication (Who?)
+        ↓
+Authorization (Allowed?)
+        ↓
+Admission Control (Safe?)
+        ↓
+etcd (Data stored/retrieved)
+⚠️ Common Security Risks
+Over-permissive RBAC
+Public API Server exposure
+No audit logging
+Default ServiceAccount misuse
+Weak authentication (no OIDC/IAM)
+✅ Best Practices
 Use RBAC with least privilege
+Enable audit logs
+Restrict API access (private endpoint)
+Use OIDC / IAM (EKS)
+Disable anonymous access
+Rotate certificates regularly
+🔗 Key Takeaway
 
-
-Enable audit logging
-
-
-Use OIDC / IAM for authentication
-
-
-Restrict API Server access (private endpoint / firewall)
-
-
-Enable encryption at rest
-
-
-Regularly rotate certificates
-
-
-
-🧠 Mental Model
-Request → API Server → [AuthN] → [AuthZ] → [Admission] → etcd                          ↓                       [Audit Log]
-
-🔑 Summary
-
-
-API Server is the security gatekeeper
-
-
-Every request passes through:
-
-
-Authentication
-
-
-Authorization
-
-
-Admission control
-
-
-
-
-Securing it = securing the entire cluster
-
-
-
-🚀 Next Step
-
-
-ServiceAccounts & RBAC (deep dive)
-
-
-Admission Controllers (hands-on policies)
-
-
+The API Server is the single entry point for all operations —
+controlling identity, access, and policy enforcement.
