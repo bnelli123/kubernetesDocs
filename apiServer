@@ -1,18 +1,17 @@
-Kubernetes (K8s) security is a broad topic, but it’s easiest to understand if you break it down into layers. Think of it as defending a system from the outside in: cluster → nodes → workloads → network → data → access control.
-
-Here’s a clear, structured overview of the core Kubernetes security concepts:
-
 🔐 1. Cluster Security (Control Plane)
 
 The control plane manages the entire cluster, so securing it is critical.
 
-Key concepts:
+Key Concepts
 API Server Security
 Entry point to the cluster
 Secured using TLS certificates
 Authentication
 Verifies who you are
-Methods: certificates, tokens, OIDC (e.g., Google login)
+Methods:
+Certificates
+Tokens
+OIDC (e.g., Google login)
 Authorization
 Determines what you can do
 Controlled by RBAC (Role-Based Access Control)
@@ -53,12 +52,10 @@ Control traffic between pods.
 
 Default: all traffic allowed
 With policies: restrict communication
-
-Example:
-
+Example Use Cases
 Allow only frontend → backend
 Block all other traffic
-Concepts:
+Concepts
 Pod-to-pod communication
 Namespace isolation
 Ingress/Egress rules
@@ -74,14 +71,14 @@ Tokens
 ⚠️ Important:
 
 Stored in etcd (base64 encoded, not encrypted by default)
-Best Practices:
+Best Practices
 Enable encryption at rest
 Use external tools:
 HashiCorp Vault
 AWS Secrets Manager
 Avoid hardcoding secrets in YAML
 🖥️ 6. Node Security
-Key areas:
+Key Areas
 Secure kubelet
 Disable anonymous access
 Use minimal OS (e.g., container-optimized OS)
@@ -90,16 +87,14 @@ Container Runtime Security
 Use trusted images
 Scan images for vulnerabilities
 📊 7. Logging & Monitoring
-Why important?
-
-Detect attacks and misconfigurations.
-
-Tools:
+Why Important?
+Detect attacks and misconfigurations
+Tools
 Audit logs (API server)
 Prometheus + Grafana
 Falco (runtime threat detection)
 🔒 8. Image Security
-Best practices:
+Best Practices
 Use trusted registries
 Scan images (Trivy, Clair)
 Avoid latest tag
