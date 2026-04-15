@@ -1,1 +1,137 @@
-🔐 1. Cluster Security (Control Plane) The control plane manages the entire cluster, so securing it is critical. Key Concepts API Server Security Entry point to the cluster Secured using TLS certificates Authentication Verifies who you are Methods: Certificates Tokens OIDC (e.g., Google login) Authorization Determines what you can do Controlled by RBAC (Role-Based Access Control) Admission Controllers Enforce policies before objects are created Example: block privileged containers 👤 2. Authentication & Authorization Authentication (Who are you?) X.509 certificates Bearer tokens OpenID Connect (OIDC) Authorization (What can you do?) RBAC (most important) Roles & ClusterRoles RoleBindings & ClusterRoleBindings Principle of Least Privilege Only give minimum required permissions 📦 3. Workload Security (Pods & Containers) Pod Security Avoid running as root Use read-only file systems Drop unnecessary Linux capabilities Pod Security Standards (PSS) Privileged (least secure) Baseline Restricted (most secure) SecurityContext Defines security settings: securityContext: runAsUser: 1000 readOnlyRootFilesystem: true 🌐 4. Network Security Network Policies Control traffic between pods. Default: all traffic allowed With policies: restrict communication Example Use Cases Allow only frontend → backend Block all other traffic Concepts Pod-to-pod communication Namespace isolation Ingress/Egress rules 🔑 5. Secrets Management Kubernetes Secrets Used to store: Passwords API keys Tokens ⚠️ Important: Stored in etcd (base64 encoded, not encrypted by default) Best Practices Enable encryption at rest Use external tools: HashiCorp Vault AWS Secrets Manager Avoid hardcoding secrets in YAML 🖥️ 6. Node Security Key Areas Secure kubelet Disable anonymous access Use minimal OS (e.g., container-optimized OS) Regular patching Container Runtime Security Use trusted images Scan images for vulnerabilities 📊 7. Logging & Monitoring Why Important? Detect attacks and misconfigurations Tools Audit logs (API server) Prometheus + Grafana Falco (runtime threat detection) 🔒 8. Image Security Best Practices Use trusted registries Scan images (Trivy, Clair) Avoid latest tag Keep images minimal (Alpine, Distroless) 🧱 9. etcd Security etcd stores cluster state (very sensitive) Secure with: TLS encryption Access restrictions Backup & restore strategy 🚫 10. Common Security Risks Overly permissive RBAC roles Running containers as root No network policies Exposed dashboard/API Unencrypted secrets Using outdated images 🧠 Quick Mental Model Think of Kubernetes security as: Identity → Access → Workloads → Network → Data → Monitoring ✅ Key Best Practices Summary Use RBAC with least privilege Enable network policies Secure secrets properly Use Pod Security Standards (restricted) Scan container images Enable audit logging Encrypt data at rest (etcd)
+**🔐 1. Cluster Security (Control Plane)**
+
+The control plane manages the entire cluster, so securing it is critical.
+
+**Key concepts:**
+API Server Security
+Entry point to the cluster
+Secured using TLS certificates
+Authentication
+Verifies who you are
+Methods: certificates, tokens, OIDC (e.g., Google login)
+Authorization
+Determines what you can do
+Controlled by RBAC (Role-Based Access Control)
+Admission Controllers
+Enforce policies before objects are created
+Example: block privileged containers
+
+**👤 2. Authentication & Authorization**
+Authentication (Who are you?)
+X.509 certificates
+Bearer tokens
+OpenID Connect (OIDC)
+Authorization (What can you do?)
+RBAC (most important)
+Roles & ClusterRoles
+RoleBindings & ClusterRoleBindings
+Principle of Least Privilege
+Only give minimum required permissions
+
+**📦 3. Workload Security (Pods & Containers)**
+Pod Security
+Avoid running as root
+Use read-only file systems
+Drop unnecessary Linux capabilities
+Pod Security Standards (PSS)
+Privileged (least secure)
+Baseline
+Restricted (most secure)
+SecurityContext
+
+Defines security settings:
+
+securityContext:
+  runAsUser: 1000
+  readOnlyRootFilesystem: true
+  
+**🌐 4. Network Security**
+Network Policies
+
+Control traffic between pods.
+
+Default: all traffic allowed
+With policies: restrict communication
+
+Example:
+
+Allow only frontend → backend
+Block all other traffic
+Concepts:
+Pod-to-pod communication
+Namespace isolation
+Ingress/Egress rules
+🔑 5. Secrets Management
+Kubernetes Secrets
+
+Used to store:
+
+Passwords
+API keys
+Tokens
+
+**⚠️ Important:**
+
+Stored in etcd (base64 encoded, not encrypted by default)
+Best Practices:
+Enable encryption at rest
+Use external tools:
+HashiCorp Vault
+AWS Secrets Manager
+Avoid hardcoding secrets in YAML
+
+**🖥️ 6. Node Security**
+Key areas:
+Secure kubelet
+Disable anonymous access
+Use minimal OS (e.g., container-optimized OS)
+Regular patching
+Container Runtime Security
+Use trusted images
+Scan images for vulnerabilities
+
+**📊 7. Logging & Monitoring**
+Why important?
+
+Detect attacks and misconfigurations.
+
+Tools:
+Audit logs (API server)
+Prometheus + Grafana
+Falco (runtime threat detection)
+
+
+**🔒 8. Image Security**
+Best practices:
+Use trusted registries
+Scan images (Trivy, Clair)
+Avoid latest tag
+Keep images minimal (Alpine, Distroless)
+
+**🧱 9. etcd Security**
+etcd stores cluster state (very sensitive)
+Secure with:
+TLS encryption
+Access restrictions
+Backup & restore strategy
+
+**🚫 10. Common Security Risks**
+Overly permissive RBAC roles
+Running containers as root
+No network policies
+Exposed dashboard/API
+Unencrypted secrets
+Using outdated images
+🧠 Quick Mental Model
+
+Think of Kubernetes security as:
+
+Identity → Access → Workloads → Network → Data → Monitoring
+✅ Key Best Practices Summary
+Use RBAC with least privilege
+Enable network policies
+Secure secrets properly
+Use Pod Security Standards (restricted)
+Scan container images
+Enable audit logging
+Encrypt data at rest (etcd)
