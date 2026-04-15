@@ -1,109 +1,164 @@
-# What is the API Server?
+# 🔐 Kubernetes API Server – Security Overview
 
-The API Server is the **front-end of the Kubernetes control plane**.
+## 📌 What is the API Server?
 
-It:
-- Exposes the Kubernetes API (used by `kubectl`, controllers, apps)
-- Processes all requests such as:
-  - Create Pod
-  - Read Secrets
-  - Delete Deployments
+The **Kubernetes API Server** is the **front-end of the control plane**.
+
+It is responsible for:
+
+- Exposing the Kubernetes API (used by `kubectl`, controllers, and applications)
+- Processing all cluster requests, such as:
+  - Creating Pods
+  - Reading Secrets
+  - Deleting Deployments
 
 ---
 
-## 🔑 Why it’s critical for security
+## 🔑 Why the API Server is Critical for Security
 
-Every request must pass through these stages:
+Every request in Kubernetes must pass through multiple **security layers** enforced by the API Server.
 
-🔐 2. Authorization (What can you do?)
+---
 
-After identity is verified, API Server checks permissions.
+## 🛂 1. Authorization (What can you do?)
 
-Common authorization modes:
-RBAC (most used)
-ABAC (legacy)
-Node authorization
-Example:
+After identity is verified, the API Server checks **permissions**.
 
-User tries to list pods
-API Server checks:
+### 🔹 Common Authorization Modes
 
-Role / ClusterRole
-RoleBinding
-🔐 3. Admission Control (Should this request be allowed?)
+- **RBAC** (most widely used)
+- **ABAC** (legacy)
+- **Node Authorization**
 
-Even if authorized, the request is validated and possibly modified.
+### 🔹 Example
 
-Types:
-Validating Admission Controllers
-Mutating Admission Controllers
-Examples:
-Block privileged containers
-Enforce labels
-Inject sidecars
-🔐 4. Secure Communication (TLS)
+- User tries to list pods  
+- API Server checks:
+  - Role / ClusterRole  
+  - RoleBinding / ClusterRoleBinding  
 
-All communication is encrypted.
+---
 
-API Server uses HTTPS (TLS)
-Certificates ensure:
-Confidentiality
-Integrity
-🔐 5. Audit Logging
+## 🧪 2. Admission Control (Should this request be allowed?)
 
-Tracks all API activity.
+Even if a request is authorized, it is still **validated or modified** before execution.
 
-Logs include:
-Who made the request
-What action was performed
-When it happened
-🔐 6. Secrets Access Control
+### 🔹 Types
 
-API Server controls access to:
+- **Validating Admission Controllers**
+- **Mutating Admission Controllers**
 
-Secrets
-ConfigMaps
+### 🔹 Example Use Cases
 
-👉 Access is enforced via:
+- Block privileged containers  
+- Enforce required labels  
+- Inject sidecars automatically  
 
-RBAC
-Admission policies
-🔐 7. ServiceAccount Integration
-Pods authenticate using ServiceAccount tokens
-API Server validates these tokens
-🔐 8. Network Exposure
+---
 
-API Server is exposed via:
+## 🔒 3. Secure Communication (TLS)
 
-Public endpoint (less secure)
-Private endpoint (recommended)
-Best practices:
-Restrict access via IP / VPC
-Use private clusters (EKS)
-🧠 Request Flow (Full Security Pipeline)
-User/Pod Request
-        ↓
-Authentication (Who?)
-        ↓
-Authorization (Allowed?)
-        ↓
-Admission Control (Safe?)
-        ↓
-etcd (Data stored/retrieved)
-⚠️ Common Security Risks
-Over-permissive RBAC
-Public API Server exposure
-No audit logging
-Default ServiceAccount misuse
-Weak authentication (no OIDC/IAM)
-✅ Best Practices
-Use RBAC with least privilege
-Enable audit logs
-Restrict API access (private endpoint)
-Use OIDC / IAM (EKS)
-Disable anonymous access
-Rotate certificates regularly
-🔗 Key Takeaway
+All communication with the API Server is **encrypted**.
 
-The API Server is the single entry point for all operations —
-controlling identity, access, and policy enforcement.
+### 🔹 Key Points
+
+- Uses **HTTPS (TLS)**  
+- Certificates ensure:
+  - Confidentiality  
+  - Integrity  
+
+---
+
+## 🧾 4. Audit Logging
+
+The API Server logs all activity for visibility and compliance.
+
+### 🔹 Logs Include
+
+- Who made the request  
+- What action was performed  
+- When it happened  
+
+---
+
+## 🔐 5. Secrets Access Control
+
+The API Server controls access to sensitive data:
+
+- Secrets  
+- ConfigMaps  
+
+### 🔹 Access is enforced via
+
+- RBAC  
+- Admission policies  
+
+---
+
+## 🤖 6. ServiceAccount Integration
+
+- Pods authenticate using **ServiceAccount tokens**  
+- API Server validates these tokens  
+
+---
+
+## 🌐 7. Network Exposure
+
+The API Server can be exposed in different ways:
+
+- **Public endpoint** → Less secure  
+- **Private endpoint** → Recommended  
+
+### 🔹 Best Practices
+
+- Restrict access via IP / VPC  
+- Use private clusters (EKS)  
+
+---
+
+## 🧠 Request Flow (Security Pipeline)
+
+- User/Pod Request  
+  ↓  
+- Authentication (Who?)  
+  ↓  
+- Authorization (Allowed?)  
+  ↓  
+- Admission Control (Safe?)  
+  ↓  
+- etcd (Data stored/retrieved)  
+
+---
+
+## ⚠️ Common Security Risks
+
+- Over-permissive RBAC  
+- Public API Server exposure  
+- No audit logging  
+- Misuse of default ServiceAccount  
+- Weak authentication (no OIDC/IAM)  
+
+---
+
+## ✅ Best Practices
+
+- Use **RBAC with least privilege**  
+- Enable **audit logging**  
+- Restrict API access (private endpoint)  
+- Use **OIDC / IAM (EKS)**  
+- Disable anonymous access  
+- Rotate certificates regularly  
+
+---
+
+## 🔗 Key Takeaway
+
+> The API Server is the **single entry point** for all Kubernetes operations.
+
+It enforces:
+
+- Identity (**Authentication**)  
+- Access (**Authorization**)  
+- Policy (**Admission Control**)  
+
+👉 Securing the API Server = securing the entire cluster
