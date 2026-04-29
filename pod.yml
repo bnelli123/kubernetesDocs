@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+  labels:
+    app: my-app
+  namespace: dev
+spec:
+  containers:
+  - name: my-container
+    image: nginx
+    ports:
+    - containerPort: 80
+    # envFrom:
+    # - configMapRef:
+    #     name: my-config
+    #     key: APP_COLOR
+    env:
+    - name: APP_COLOR
+      valueFrom:
+        configMapKeyRef:
+          name: my-config
+          key: APP_COLOR
+    - name: APP_MODE
+      valueFrom:
+        configMapKeyRef:
+          name: my-config
+          key: APP_MODE
+    - name: USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: my-secret
+          key: username
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+  - name: sidecar-container
+    image: busybox
+    command: ["sh", "-c", "while true; do echo Hello from the sidecar container; sleep 5; done"]
+    ports:
+    - containerPort: 8080
+    resources:
+      requests:
+        memory: "32Mi"
+        cpu: "100m"
+      limits:
+        memory: "64Mi"
+        cpu: "200m"
+  restartPolicy: Always
+  volumes:
+  - name: shared-data 
+    emptyDir: {}

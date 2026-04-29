@@ -1,0 +1,16 @@
+# If, else if, else
+myapp:
+  env: prod
+  retail:
+    enableFeature: true
+releaseName: "Bala"
+replicaCount: 0
+
+# Resources for testing Template Function: toYaml 
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi

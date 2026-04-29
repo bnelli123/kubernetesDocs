@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name}}-{{ .Chart.Name  }}
+  labels:
+    app: nginx
+  annotations:
+    app.kubernetes.io/created-by: {{ .Release.Service }}
+    #Quote Function
+    app.kubernetes.io/created-by: {{ quote .Release.Service }}
+    #Pipeline
+    app.kubernetes.io/created-by: {{ .Release.Service | quote }}
+    #default function
+    app.kubernetes.io/created-by: {{ default "MYRELEASE101" .Values.releaseName }}
+    leading-whitespace: "{{- .Chart.Name }}  bala"
+    trailing-whitespace: "Bala  {{- .Chart.Name }}"
+    trailing-whitespace-2: "{{- .Chart.Name }}  Bala"
+    leading-trailing-whitespace: "{{- .Chart.Name -}}  Bala  {{- .Chart.Name -}}"
+
+    #Indent
+    indenttest: "{{ .Chart.Name | indent 10 }}"
+    nindenttest: "{{ .Chart.Name | nindent 10 }}"
+
+    #toYaml
+spec:
+{{- if eq .Values.myapp.env "prod" }}
+  replicas: 4
+{{- else if eq .Values.myapp.env "qa" }}
+  replicas: 2
+{{- else }}
+  replicas: 1
+{{- end }}
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: ghcr.io/stacksimplify/kubenginx:4.0.0
+        ports:
+        - containerPort: 80
+        resources:
+{{ toYaml .Values.resources | indent 10 }}

@@ -1,0 +1,14 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app-1
+  namespace: argocd
+spec:
+  project: app-project-1
+  source:
+    repoURL: https://github.com/bnelli123/kubernetesDocs.git
+    targetRevision: HEAD
+  destination:
+    server: https://kubernetes.default.svc
+    path: RedisPOd
+    namespace: dev

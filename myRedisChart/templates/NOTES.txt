@@ -1,0 +1,30 @@
+{{/* This is comment */}}
+
+{{ . }}
+
+{{ .Values }}
+
+{{ .Release.Name }}
+{{ .Release.Namespace }}
+{{ .Release.Service }}
+
+{{ .Chart.Name }}
+{{ .Chart.Version }}
+{{ .Chart.AppVersion }}
+{{ .Chart.Type }}
+Chart Name and Version: {{ .Chart.Name }}  -- {{ .Chart.Version }}
+
+ReplicaCount: {{ .Values.replicaCount }}
+{{ .Values.image.repository }}
+
+HelmVersion: {{ .Capabilities.HelmVersion }}
+K8s Version: {{ .Capabilities.KubeVersion.Major }}
+{{ .Capabilities.KubeVersion.Minor }}
+{{ .Capabilities.HelmVersion.Version }}
+
+{{ .Template }}
+{{ .Template.BasePath }}
+{{ .Template.Name }}
+
+File Get: {{ .Files.Get "myFile.txt" }}
+File Lines: {{ .Files.Lines "myFile.txt" }}
