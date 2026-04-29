@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/bnelli123/kubernetesDocs.git
     targetRevision: HEAD
+    path: RedisPOd
   destination:
     server: https://kubernetes.default.svc
-    path: RedisPOd
     namespace: dev
