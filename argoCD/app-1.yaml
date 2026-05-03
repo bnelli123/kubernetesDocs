@@ -6,9 +6,9 @@ metadata:
 spec:
   project: app-project-1
   source:
-    repoURL: "https://github.com/argoproj/argo-cd.git"
+    repoURL: "https://github.com/bnelli123/argoCD.git"
     targetRevision: HEAD
-    path: "apps/*"
+    path: "."
     directory:
       recurse: true
   destination:

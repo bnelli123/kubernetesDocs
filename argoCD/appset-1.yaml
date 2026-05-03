@@ -6,7 +6,7 @@ metadata:
 spec:
   generators:
     - git:
-        repoURL: "https://github.com/argoproj/argo-cd.git"
+        repoURL: "https://github.com/bnelli123/argoCD.git"
         revision: "HEAD"
         directories:
           - path: apps/*
@@ -16,7 +16,7 @@ spec:
     spec:
       project: default
       source:
-        repoURL: "https://github.com/argoproj/argo-cd.git"
+        repoURL: "https://github.com/bnelli123/argoCD.git"
         targetRevision: "HEAD"
         path: "{{path}}"
       destination:
